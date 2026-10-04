@@ -1,0 +1,36 @@
+{
+    "id": "./",
+    "name": "Word Khelo - Diploma Vocabulary Game",
+    "short_name": "Word Khelo",
+    "description": "Bihar Board Diploma aur Class 9-12 ke liye English vocabulary word-search game. 100 levels, subject-wise words, spaced revision.",
+    "lang": "hi-IN",
+    "dir": "ltr",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "display_override": ["standalone", "minimal-ui", "browser"],
+    "orientation": "any",
+    "background_color": "#0f0c29",
+    "theme_color": "#0f0c29",
+    "categories": ["education", "games"],
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
