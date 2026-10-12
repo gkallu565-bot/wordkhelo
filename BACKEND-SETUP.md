@@ -9,9 +9,9 @@
 5. Create a Firestore database.
 6. Deploy the rules with `firebase deploy --only firestore:rules`.
 
-`firebase-config.js` is intentionally ignored by this project setup and should
-never contain Admin SDK credentials. The current local game remains usable if
-the file is missing.
+`firebase-config.js` contains only the Firebase browser configuration. It is
+safe to publish this web config; never put Admin SDK credentials in it. The
+current local game remains usable if the file is missing.
 
 ## Phase 1 collections
 
