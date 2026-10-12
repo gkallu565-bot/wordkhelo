@@ -272,6 +272,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <button class="ibtn" onclick="shareLink()" title="Share link">🔗</button>
 <button class="ibtn" onclick="toggleTheme()">🌓</button>
 <button class="ibtn" onclick="showLeaderboard()">🏆</button>
+<button class="ibtn" id="authBtn" onclick="WordKheloLogin()" title="Login">Login</button>
 </div>
 </div>
 <div id="selScreen">
@@ -372,6 +373,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <span class="pill">💾 Iske baad bina internet ke bhi khelein</span>
 <br><button class="mb" onclick="closeM('installModal')">Samajh gaya</button></div></div>
 <div class="toast" id="toast"></div>
+<script src="firebase-config.js"></script>
+<script type="module" src="firebase-client.js"></script>
 <script>
 const B={CSE:{n:'Computer Science',i:'💻'},ME:{n:'Mechanical',i:'⚙️'},EE:{n:'Electrical',i:'⚡'},CE:{n:'Civil',i:'🏗️'},ECE:{n:'Electronics',i:'📱'}};
 const S=[1,2,3,4,5,6];
@@ -1335,6 +1338,13 @@ function buildSubjectPool(wordData,subjectKey){
             localStorage.setItem('wk_level',Math.min(100,level+1));
             setSubjectLevel(selSubj,level+1);        // per-subject level
             localStorage.setItem('wk_total',totalScore);
+            if(window.WordKheloBackend && WordKheloBackend.enabled){
+                WordKheloBackend.saveProgress({
+                    subjectId:String(selSubj||'general'), level:Math.min(100,level+1),
+                    totalScore:totalScore, currentClass:String(selClass||''),
+                    branch:String(selBranch||''), semester:String(selSem||'')
+                }).catch(function(err){console.warn('Progress sync failed:',err.message);});
+            }
         }
     }
     function getNextCfg(l){
@@ -1501,9 +1511,33 @@ function openM(id){document.getElementById(id).classList.add('show');}
         s.sort((a,b)=>b.score-a.score);
         localStorage.setItem('wk_scores',JSON.stringify(s.slice(0,20)));
         localStorage.setItem('wk_total',totalScore);
+        if(window.WordKheloBackend && WordKheloBackend.enabled){
+            WordKheloBackend.recordGame({
+                subjectId:String(selSubj||'general'), level:level, score:score,
+                totalScore:totalScore, timeTaken:sec, livesRemaining:lives,
+                hintsUsed:hintPenalty
+            }).catch(function(err){console.warn('Game result sync failed:',err.message);});
+        }
     }
     function fmt(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
     function showToast(msg,ms){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms||2000);}
+    window.WordKheloLogin=function(){
+        if(!window.WordKheloBackend || !WordKheloBackend.enabled){
+            showToast('Firebase setup abhi pending hai'); return;
+        }
+        if(WordKheloBackend.user){
+            WordKheloBackend.logout().catch(function(err){showToast(err.message);});
+        }else{
+            WordKheloBackend.login().catch(function(err){showToast('Login nahi hua');console.warn(err);});
+        }
+    };
+    window.addEventListener('wordkhelo-auth',function(e){
+        var b=document.getElementById('authBtn'),u=e.detail;
+        if(!b)return;
+        b.textContent=u?'Logout':'Login';
+        b.title=u?(u.displayName||u.email||'Logout'):'Login';
+        if(u && window.WordKheloBackend)WordKheloBackend.saveProfile().catch(function(err){console.warn('Profile sync failed:',err.message);});
+    });
     init();
     </script>
 <script>
