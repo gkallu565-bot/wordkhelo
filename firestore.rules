@@ -24,8 +24,25 @@ service cloud.firestore {
 
     match /leaderboard/{uid} {
       allow read: if true;
+      // Transitional Phase 1 write. Lock this after submitGameResult is
+      // deployed on Blaze; then only the Cloud Function should write scores.
       allow create, update: if owner(uid) && request.resource.data.userId == request.auth.uid;
       allow delete: if false;
+    }
+
+    match /dailyChallenges/{challengeId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /content/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /reports/{reportId} {
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if false;
     }
 
     // Content/admin collections are intentionally locked until Phase 2 roles exist.

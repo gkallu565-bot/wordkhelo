@@ -1504,6 +1504,15 @@ function openM(id){document.getElementById(id).classList.add('show');}
         html+='<br><button class="mb sec" onclick="resetProgress()">Reset Progress</button>';
         l.innerHTML=html;
         document.getElementById('lbModal').classList.add('show');
+        if(window.WordKheloBackend && WordKheloBackend.user){
+            WordKheloBackend.getLeaderboard().then(function(rows){
+                if(!rows.length)return;
+                const online=rows.map(function(x,i){
+                    return '<div class="li"><span class="lr">#'+(i+1)+'</span><span class="lin">'+(x.displayName||'Player')+'</span><span class="ls">'+(x.totalScore||0)+' pts</span></div>';
+                }).join('');
+                l.innerHTML=html+'<div style="margin:10px 0 5px;font-weight:700">Online Leaderboard</div>'+online;
+            }).catch(function(err){console.warn('Leaderboard sync failed:',err.message);});
+        }
     }
     function saveScore(){
         const s=JSON.parse(localStorage.getItem('wk_scores')||'[]');
@@ -1536,7 +1545,10 @@ function openM(id){document.getElementById(id).classList.add('show');}
         if(!b)return;
         b.textContent=u?'Logout':'Login';
         b.title=u?(u.displayName||u.email||'Logout'):'Login';
-        if(u && window.WordKheloBackend)WordKheloBackend.saveProfile().catch(function(err){console.warn('Profile sync failed:',err.message);});
+        if(u && window.WordKheloBackend){
+            WordKheloBackend.saveProfile().then(function(){return WordKheloBackend.flushOfflineQueue();})
+                .catch(function(err){console.warn('Profile sync failed:',err.message);});
+        }
     });
     init();
     </script>
